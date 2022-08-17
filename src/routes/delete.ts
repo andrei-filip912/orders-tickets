@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import { Order, OrderStatus } from '../models/order';
-import { NotFoundError, requireAuth, UnauthorizedError } from '@frst-ticket-app/common';
+import { NotFoundError, requireAuth, UnauthorizedError, validateRequest } from '@frst-ticket-app/common';
 import { param } from 'express-validator';
 import mongoose from 'mongoose';
 
@@ -13,6 +13,7 @@ router.patch('/api/orders/:orderId',
             .custom((idValue) => mongoose.Types.ObjectId.isValid(idValue))
             .withMessage('The id must be a valid MongoDB ObjectId')
     ],
+    validateRequest,
     async (req: Request, res: Response) => {
         const { orderId } = req.params;
 
@@ -27,6 +28,8 @@ router.patch('/api/orders/:orderId',
         order.status = OrderStatus.Cancelled;
         await order.save();
 
+        // publish an event
+        
         res.status(204).send(order);
     });
 
