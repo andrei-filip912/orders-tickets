@@ -2,8 +2,8 @@ import express, { Request, Response } from 'express';
 import { NotFoundError, BadRequestError, requireAuth, validateRequest, OrderStatus} from '@frst-ticket-app/common';
 import { body } from 'express-validator';
 import mongoose from 'mongoose';
-import { Ticket } from './models/ticket';
-import { Order } from './models/order';
+import { Ticket } from '../models/ticket';
+import { Order } from '../models/order';
 
 const router = express.Router();
 
@@ -28,10 +28,9 @@ router.post('/api/orders',
         if(!ticket) {
             throw new NotFoundError();
         }
-
+        
         // Make sure the ticket is not already reserved
         const isReserved = await ticket.isReserved();
-
         if(isReserved) {
             throw new BadRequestError('Ticket already reserved');
         }
@@ -50,6 +49,8 @@ router.post('/api/orders',
         await order.save();
 
         // Publish order:created event
+
+        res.status(201).send(order);
     });
 
 export { router as newOrderRouter };
