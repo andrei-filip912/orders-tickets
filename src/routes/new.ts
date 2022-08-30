@@ -4,11 +4,12 @@ import { body } from 'express-validator';
 import mongoose from 'mongoose';
 import { Ticket } from '../models/ticket';
 import { Order } from '../models/order';
+import { OrderCreatedPublisher } from '../events/publishers/order-created-publisher';
+import { natsWrapper } from '../nats-wrapper';
 
 const router = express.Router();
 
 const secondsInMinute = 60;
-const EXPIRATION_WINDOW_SECONDS = Number(process.env.ORDER_EXPIRE_SECONDS) * secondsInMinute;
 
 router.post('/api/orders',
     requireAuth,
@@ -37,19 +38,31 @@ router.post('/api/orders',
 
         // Set expiration date
         const expiration = new Date();
+        
+        const EXPIRATION_WINDOW_SECONDS = Number(process.env!.ORDER_EXPIRE_SECONDS) * secondsInMinute;
         expiration.setSeconds(expiration.getSeconds() + EXPIRATION_WINDOW_SECONDS);
-
+        
         // Build order
         const order = Order.build({
             userId: req.currentUser!.id,
             status: OrderStatus.Created,
             expiresAt: expiration,
-            ticket
+            ticket,
         });
         await order.save();
 
         // Publish order:created event
-
+        new OrderCreatedPublisher(natsWrapper.client).publish({
+            id: order.id,
+            status: order.status,
+            userId: order.userId,
+            expiresAt: order.expiresAt.toISOString(),
+            ticket: {
+                id: ticket.id,
+                price: ticket.price,
+            }
+        });
+        
         res.status(201).send(order);
     });
 

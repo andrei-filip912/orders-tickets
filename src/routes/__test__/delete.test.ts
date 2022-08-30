@@ -3,6 +3,7 @@ import { app } from '../../app';
 import { Ticket } from "../../models/ticket";
 import { Order, OrderStatus } from "../../models/order";
 import mongoose from 'mongoose';
+import { natsWrapper } from '../../nats-wrapper';
 
 test('should verify the id parameter', async () => {
     const user = global.signin();
@@ -100,4 +101,29 @@ test('should allow an user to cancel an order', async () => {
     expect(updatedOrder!.status).toEqual(OrderStatus.Cancelled);
 });
 
-test.todo('should emit an event for order:cancelled');
+test('should emit an event for order:cancelled', async () => {
+    // create a ticket
+    const ticket = Ticket.build({
+        title: 'concert',
+        price: 20
+    });
+    await ticket.save();
+
+    const user = global.signin();
+
+    // request to create an order
+    const { body: order } = await request(app)
+        .post('/api/orders')
+        .set('Cookie', user)
+        .send({ ticketId: ticket.id})
+        .expect(201);
+    
+    // make a request to cancel the order
+    await request(app)
+        .patch(`/api/orders/${order.id}`)
+        .set('Cookie', user)
+        .send()
+        .expect(204);
+    
+    expect(natsWrapper.client.publish).toHaveBeenCalled();
+});
