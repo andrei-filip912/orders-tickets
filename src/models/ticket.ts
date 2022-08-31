@@ -6,6 +6,7 @@ import { Order, OrderStatus } from './order';
 // need the other properties of a ticket)
 
 interface TicketAttributes {
+    id: string;
     title: string;
     price: number;
 }
@@ -40,7 +41,11 @@ const ticketSchema = new mongoose.Schema({
 });
 
 ticketSchema.statics.build = (attributes: TicketAttributes) => {
-    return new Ticket(attributes);
+    return new Ticket({
+        _id: attributes.id,// using this to solve issue created by renaming _id to id
+        title: attributes.title,
+        price: attributes.price,
+    });
 }
 // critical to use function keyword so this keyword will work properly
 ticketSchema.methods.isReserved = async function() {
