@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { Order, OrderStatus } from './order';
+import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
 
 // it is a bad practice to include this file in the common module since the
 // definition of a ticket is specific to each service (this service does not
@@ -14,6 +15,7 @@ interface TicketAttributes {
 interface TicketDocument extends mongoose.Document {
     title: string;
     price: number;
+    version: number;
     isReserved() : Promise<boolean>;
 }
 
@@ -39,6 +41,9 @@ const ticketSchema = new mongoose.Schema({
         }
     }
 });
+
+ticketSchema.set('versionKey', 'version');
+ticketSchema.plugin(updateIfCurrentPlugin);
 
 ticketSchema.statics.build = (attributes: TicketAttributes) => {
     return new Ticket({
