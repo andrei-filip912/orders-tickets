@@ -21,6 +21,7 @@ interface TicketDocument extends mongoose.Document {
 
 interface TicketModel extends mongoose.Model<TicketDocument> {
     build(attributes: TicketAttributes): TicketDocument;
+    findByEvent(event: { id: string, version: number}) : Promise<TicketDocument | null>;
 }
 
 const ticketSchema = new mongoose.Schema({
@@ -52,6 +53,12 @@ ticketSchema.statics.build = (attributes: TicketAttributes) => {
         price: attributes.price,
     });
 }
+ticketSchema.statics.findByEvent = ( event: { id: string, version: number }) => {
+    return Ticket.findOne({
+        _id: event.id,
+        version: event.version -1,
+    });
+};
 // critical to use function keyword so this keyword will work properly
 ticketSchema.methods.isReserved = async function() {
     const existingOrder = await Order.findOne({
