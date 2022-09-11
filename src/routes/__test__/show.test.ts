@@ -17,6 +17,7 @@ test('should verify the id parameter', async () => {
 test('should not be able to fetch inexistent order', async () => {
     // create a ticket
     const ticket = Ticket.build({
+        id: new mongoose.Types.ObjectId().toHexString(),
         title: 'concert',
         price: 20
     });
@@ -43,6 +44,7 @@ test('should not be able to fetch inexistent order', async () => {
 test("should not allow a user to fetch another user's order", async () => { 
     // create a ticket
     const ticket = Ticket.build({
+        id: new mongoose.Types.ObjectId().toHexString(),
         title: 'concert',
         price: 20
     });
@@ -69,6 +71,7 @@ test("should not allow a user to fetch another user's order", async () => {
 test('should fetch the order', async () => { 
     // create a ticket
     const ticket = Ticket.build({
+        id: new mongoose.Types.ObjectId().toHexString(),
         title: 'concert',
         price: 20
     });
