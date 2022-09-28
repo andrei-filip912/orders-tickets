@@ -39,7 +39,8 @@ router.post('/api/orders',
         // Set expiration date
         const expiration = new Date();
         
-        const EXPIRATION_WINDOW_SECONDS = Number(process.env!.ORDER_EXPIRE_SECONDS) * secondsInMinute;
+        // const EXPIRATION_WINDOW_SECONDS = Number(process.env!.ORDER_EXPIRE_SECONDS) * secondsInMinute;
+        const EXPIRATION_WINDOW_SECONDS = 1 * secondsInMinute;  // dev
         expiration.setSeconds(expiration.getSeconds() + EXPIRATION_WINDOW_SECONDS);
         
         // Build order
