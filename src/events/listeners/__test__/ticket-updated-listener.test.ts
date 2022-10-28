@@ -24,6 +24,9 @@ const setup = async () => {
         version: ticket.version + 1,
         title: 'new concert',
         price: 534,
+        date: new Date(),
+        location: 'sd',
+        description: 'fff',
         userId: 'fsdfaa'
     };
 

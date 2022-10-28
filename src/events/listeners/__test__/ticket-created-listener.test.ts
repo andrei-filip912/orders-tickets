@@ -15,7 +15,10 @@ const setup = async () => {
         id: new mongoose.Types.ObjectId().toHexString(),
         title: 'concert',
         price: 43,
-        userId: new mongoose.Types.ObjectId().toHexString()
+        date: new Date(),
+        location: 'sd',
+        description: 'fff',
+        userId: new mongoose.Types.ObjectId().toHexString(),
     };
 
     // create fake message object(dirty fix to not implement trivial props)
