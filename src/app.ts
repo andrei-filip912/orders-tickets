@@ -17,8 +17,7 @@ app.use(
     cookieSession({
     signed: false,  // disable encryption
     // true value allows https.
-    // secure will be false in test env and true in production
-    secure: process.env.NODE_ENV !== 'test'
+    secure: false
     })
 );
 app.use(currentUser);
